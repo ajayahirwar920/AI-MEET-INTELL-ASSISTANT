@@ -1,8 +1,22 @@
 # Speech Service
+import streamlit as st
 from faster_whisper import WhisperModel
 # Load Model
-model  = WhisperModel("base", device="cpu", compute_type="int8")
+@st.cache_resource
+def load_whisper_model():
+    """
+    Load the Whisper model only once.
+    Streamlit caches it across reruns.
+    """
+    return WhisperModel(
+        "base",
+        device="cpu",
+        compute_type="int8"
+    )
 
+
+# Get the cached model
+model = load_whisper_model()
 def transcribe_audio(file_path: str) -> str:
     """
     Converts speech to text using the Faster Whisper model.
