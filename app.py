@@ -1,4 +1,7 @@
 from services.file_service import validate_file, save_uploaded_file
+from services.parser_service import extract_text
+
+
 import streamlit as st
 
 st.set_page_config(
@@ -73,10 +76,22 @@ if uploaded_file:
         st.stop()
     
     saved_path = save_uploaded_file(uploaded_file)
-    
+    text = ""
+    if saved_path.suffix.lower() in [".txt", ".pdf"]:
+        text = extract_text(saved_path)
+        
+        
     st.success("✅ File Uploaded Successfully!")
     st.info(f"Saved to: {saved_path}")
     
+    if text:
+        st.divider()
+        st.subheader("📄 TranscriptPreview")
+        st.text_area(
+            "Extracted Text",
+            text,
+            height = 300
+        )
     col1, col2 = st.columns(2)
     
     with col1:
