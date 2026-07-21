@@ -1,3 +1,4 @@
+from services.file_service import validate_file, save_uploaded_file
 import streamlit as st
 
 st.set_page_config(
@@ -64,9 +65,17 @@ if uploaded_file is None:
         - TXT
         """
     )
-
-else:
+    
+if uploaded_file:
+    valid, message = validate_file(uploaded_file)
+    if not valid:
+        st.error(message)
+        st.stop()
+    
+    saved_path = save_uploaded_file(uploaded_file)
+    
     st.success("✅ File Uploaded Successfully!")
+    st.info(f"Saved to: {saved_path}")
     
     col1, col2 = st.columns(2)
     
