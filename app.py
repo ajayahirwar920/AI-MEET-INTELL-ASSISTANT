@@ -1,6 +1,6 @@
 from services.file_service import validate_file, save_uploaded_file
 from services.parser_service import extract_text
-
+from services.parser_service import extract_text
 
 import streamlit as st
 
@@ -76,22 +76,20 @@ if uploaded_file:
         st.stop()
     
     saved_path = save_uploaded_file(uploaded_file)
-    text = ""
+    
+    document_text = ""
     if saved_path.suffix.lower() in [".txt", ".pdf"]:
-        text = extract_text(saved_path)
-        
+        try:
+            document_text = extract_text(saved_path)
+        except Exception as e:
+            st.error(f"Unable to read file:{e}")
+            st.stop()
+              
         
     st.success("✅ File Uploaded Successfully!")
-    st.info(f"Saved to: {saved_path}")
+    st.caption(f"Saved to: {saved_path.name}")
     
-    if text:
-        st.divider()
-        st.subheader("📄 TranscriptPreview")
-        st.text_area(
-            "Extracted Text",
-            text,
-            height = 300
-        )
+
     col1, col2 = st.columns(2)
     
     with col1:
@@ -107,6 +105,15 @@ if uploaded_file:
         st.write("✅ Ready for Analysis")
         st.write(f"Meeting Type: **{meeting_type}**")
     
+    if document_text:
+        st.divider()
+        with st.expander("📄 Transcript Preview", expanded = True):
+        
+         st.text_area(
+            label="Transcript",
+            value=document_text,
+            height=350
+        )
 #Dashboard
 
 st.divider()
