@@ -1,6 +1,7 @@
 from services.file_service import validate_file, save_uploaded_file
 from services.parser_service import extract_text
-from services.parser_service import extract_text
+from services.speech_service import transcribe_audio
+
 
 import streamlit as st
 
@@ -77,14 +78,31 @@ if uploaded_file:
     
     saved_path = save_uploaded_file(uploaded_file)
     
-    document_text = ""
-    if saved_path.suffix.lower() in [".txt", ".pdf"]:
-        try:
-            document_text = extract_text(saved_path)
-        except Exception as e:
-            st.error(f"Unable to read file:{e}")
-            st.stop()
+    # document_text = ""
+    # if saved_path.suffix.lower() in [".txt", ".pdf"]:
+    #     try:
+    #         document_text = extract_text(saved_path)
+    #     except Exception as e:
+    #         st.error(f"Unable to read file:{e}")
+    #         st.stop()
               
+    document_text = ""
+
+    try:
+
+        extension = saved_path.suffix.lower()
+
+        if extension in [".txt", ".pdf"]:
+            document_text = extract_text(saved_path)
+
+        elif extension in [".mp3", ".wav"]:
+
+            with st.spinner("🎤 Transcribing audio..."):
+                document_text = transcribe_audio(str(saved_path))
+
+    except Exception as e:
+        st.error(f"Processing failed: {e}")
+        st.stop()
         
     st.success("✅ File Uploaded Successfully!")
     st.caption(f"Saved to: {saved_path.name}")
