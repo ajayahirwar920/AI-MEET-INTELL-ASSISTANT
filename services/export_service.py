@@ -1,7 +1,7 @@
 from io import BytesIO
 from datetime import datetime
 
-
+from pathlib import Path
 from docx import Document
 from docx.shared import Pt
 from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
@@ -13,6 +13,13 @@ from reportlab.platypus import (
     Paragraph,
     Spacer,
 )
+
+OUTPUT_DIR = Path("outputs")
+REPORT_DIR = OUTPUT_DIR / "reports"
+TRANSCRIPT_DIR = OUTPUT_DIR / "transcripts"
+
+REPORT_DIR.mkdir(parents=True, exist_ok=True)
+TRANSCRIPT_DIR.mkdir(parents=True, exist_ok=True)
 
 TITLE_COLOR = HexColor("#1F4E79")
 SECTION_COLOR = HexColor("#0B6E4F")
@@ -134,7 +141,13 @@ def generate_pdf(report: str, meeting_type: str, model_name: str):
     doc.build(story)
 
     buffer.seek(0)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
+    pdf_path = REPORT_DIR / f"Meeting_Report_{timestamp}.pdf"
+    
+    with open(pdf_path, "wb") as file:
+        file.write(buffer.getvalue())
+    buffer.seek(0)
     return buffer
 
 
@@ -223,7 +236,12 @@ def generate_docx(report:str, meeting_type: str, model_name: str):
     output = BytesIO()
 
     document.save(output)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
 
+    docx_path = REPORT_DIR / f"Meeting_Report_{timestamp}.docx"
+    with open(docx_path, "wb") as file:
+        file.write(output.getvalue())
+    
     output.seek(0)
 
     return output

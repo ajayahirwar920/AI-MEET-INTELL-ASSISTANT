@@ -4,11 +4,18 @@
 # print("="*60)
 
 from services.ai_service import ask_gemini
-from services.file_service import validate_file, save_uploaded_file
+from services.file_service import (
+    validate_file,
+    save_uploaded_file,
+    delete_uploaded_file,
+)
 from services.parser_service import extract_text
 from services.speech_service import transcribe_audio
 from prompts.meeting_prompt import meeting_analysis_prompt
-from services.export_service import generate_pdf, generate_docx
+from services.export_service import (
+    generate_pdf,
+    generate_docx
+)
 
 import streamlit as st
 
@@ -18,8 +25,24 @@ st.set_page_config(
     layout = "wide",
 )
 
+st.divider()
+
 #Creating Sidebar
 with st.sidebar:
+    st.image("assets/logo.png", width=80)
+
+    st.markdown(
+        "<h2 style='text-align:center; margin-bottom:0;'>MeetMind AI</h2>",
+        unsafe_allow_html=True,
+    )
+
+    st.markdown(
+        "<p style='text-align:center; color:gray;'>Transform Meetings into Actionable Insights</p>",
+        unsafe_allow_html=True,
+    )
+
+    st.divider()
+        
     st.header("📁 Upload Meeting")
     uploaded_file = st.file_uploader(
         "Choose a meeting file",
@@ -45,8 +68,23 @@ with st.sidebar:
         use_container_width=True
     )
 
-st.title("🧠 MeetMind AI")
-st.subheader("Transform meetings into Actionable Insights")
+
+#Home Page
+
+c1, c2, c3 = st.columns([2, 1, 2])
+
+with c2:
+    st.image("assets/logo.png", width=120)
+
+st.markdown(
+    "<h1 style='text-align:center;'>MeetMind AI</h1>",
+    unsafe_allow_html=True,
+)
+
+st.markdown(
+    "<h4 style='text-align:center;color:gray;'>Transform Meetings into Actionable Insights</h4>",
+    unsafe_allow_html=True,
+)
 
 st.divider()
 
@@ -56,25 +94,30 @@ st.divider()
 
 #Welcome Section
 if uploaded_file is None:
-    st.info(
-        """
-        ### 👋 Welcome to MeetMind AI
+    container = st.container(border=True)
 
-        Upload a meeting recording or transcript to automatically generate:
+    with container:
+        st.markdown("## 👋 Welcome to MeetMind AI")
 
-        - 📄 Executive Summary
-        - ✅ Action Items
-        - 🎯 Key Decisions
-        - ⚠️ Risks & Blockers
-        - 📌 Follow-up Tasks
+        st.write("Upload a meeting recording or transcript to automatically generate:")
 
-        Supported Formats:
-        - MP3
-        - WAV
-        - PDF
-        - TXT
-        """
-    )
+        st.markdown(
+            """
+            - 📄 Executive Summary
+            - ✅ Action Items
+            - 🎯 Key Decisions
+            - ⚠️ Risks & Blockers
+            - 📌 Follow-up Tasks
+            """
+        )
+
+    st.divider()
+
+    st.markdown("**Supported Formats**")
+
+    st.write("🎤 MP3 • WAV")
+
+    st.write("📄 PDF • TXT")
     
 if uploaded_file:
     valid, message = validate_file(uploaded_file)
@@ -105,6 +148,17 @@ if uploaded_file:
 
             with st.spinner("🎤 Transcribing audio..."):
                 document_text = transcribe_audio(str(saved_path))
+                from pathlib import Path
+                transcript_dir = Path("outputs/transcripts")
+                transcript_dir.mkdir(parents=True, exist_ok = True)
+                
+                from datetime import datetime
+
+                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+                transcript_path = transcript_dir / f"Transcript_{timestamp}.txt"
+                with open(transcript_path, "w", encoding = "utf-8") as f:
+                    f.write(document_text)
 
     except Exception as e:
         st.error(f"Processing failed: {e}")
@@ -158,6 +212,18 @@ if st.button("🚀 Analyze"):
             summary = ask_gemini(prompt)
             
             st.session_state["summary"] = summary
+            from pathlib import Path
+            
+            report_dir = Path("outputs/reports")
+            report_dir.mkdir(parents = True, exist_ok = True)
+            
+            from datetime import datetime
+
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+            txt_path = report_dir / f"Meeting_Summary_{timestamp}.txt"
+            with open(txt_path,"w", encoding = "utf-8") as f:
+                f.write(summary)
             st.toast("✅ Meeting analyzed successfully!")
             
             if "summary" in st.session_state:
@@ -244,6 +310,9 @@ if st.button("🚀 Analyze"):
                     mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                     use_container_width=True,
                 )
+            delete_uploaded_file(saved_path)
+                
+            
         except Exception as e:
             error_message = str(e)
             
@@ -252,7 +321,14 @@ if st.button("🚀 Analyze"):
                     "🚦 Gemini is currently experiencing high demand. "
                     "Please wait a minute and try again."
                 )
+                
+            elif "404" in error_message:
+                st.error("⚠ AI model unavailable")
+                
+            else:
+                st.error(f"Unexpected Error:{error_message}")
             st.exception(e)
+
             
 #Meeting Insights
                 
@@ -345,6 +421,8 @@ AI-Powered Meeting Intelligence Platform
 Version **1.0**
 
 Powered by **Gemini 3.5 Flash**
+
+Developed by **Ajay Ahirwar**
 
 © 2026 MeetMind AI
 

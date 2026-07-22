@@ -80,3 +80,14 @@ def save_uploaded_file(uploaded_file) -> Path:
         f.write(uploaded_file.getbuffer())
         
     return file_path
+
+def delete_uploaded_file(file_path: Path):
+    """
+    Delete uploaded file after processing.
+    """
+    try:
+        if file_path.exists():
+            file_path.unlink()
+    except Exception as e:
+        print(f"Could not delete file:{e}")
+    
