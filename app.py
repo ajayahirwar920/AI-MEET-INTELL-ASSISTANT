@@ -7,7 +7,7 @@ from services.ai_service import ask_gemini
 from services.file_service import validate_file, save_uploaded_file
 from services.parser_service import extract_text
 from services.speech_service import transcribe_audio
-
+from prompts.meeting_prompt import meeting_analysis_prompt
 
 import streamlit as st
 
@@ -153,13 +153,7 @@ if st.button("🚀 Analyze"):
 
         try:
 
-            prompt = f"""
-Summarize the following meeting in simple professional language.
-
-Meeting Transcript:
-
-{document_text}
-"""
+            prompt = meeting_analysis_prompt(document_text)
 
             summary = ask_gemini(prompt)
             
