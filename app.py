@@ -8,6 +8,7 @@ from services.file_service import validate_file, save_uploaded_file
 from services.parser_service import extract_text
 from services.speech_service import transcribe_audio
 from prompts.meeting_prompt import meeting_analysis_prompt
+from services.export_service import generate_pdf, generate_docx
 
 import streamlit as st
 
@@ -168,13 +169,37 @@ if st.button("🚀 Analyze"):
                 st.markdown(st.session_state["summary"])
             # st.write(summary)
             
+            
             st.download_button(
                 label = "📥 Download Summary",
                 data = st.session_state["summary"],
                 file_name = "meeting_summary.txt",
                 mime = "text/plain"
             )
-
+            pdf_buffer = generate_pdf(
+                report=st.session_state["summary"],
+                meeting_type=meeting_type,
+                model_name="Gemini 3.5 Flash"
+            )
+            st.download_button(
+                label="Download PDF Report",
+                data = pdf_buffer,
+                file_name = "Meeting_report.pdf",
+                mime = "application/pdf"
+            )
+            
+            docx_buffer = generate_docx(
+                report=st.session_state["summary"],
+                meeting_type=meeting_type,
+                model_name="Gemini 3.5 Flash"
+            )
+            
+            st.download_button(
+                label="📝 Download DOCX Report",
+                data=docx_buffer,
+                file_name="Meeting_Report.docx",
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            )
         except Exception as e:
 
             st.exception(e)
