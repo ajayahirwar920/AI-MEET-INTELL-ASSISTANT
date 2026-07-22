@@ -1,7 +1,0 @@
-Team Meeting
-
-Discussed API integration.
-
-Ajay will complete backend by Friday.
-
-Testing starts Monday.

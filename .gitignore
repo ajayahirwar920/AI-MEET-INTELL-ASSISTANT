@@ -216,3 +216,24 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Environment
+.env
+
+# Virtual Environment
+.venv/
+
+# Python
+__pycache__/
+*.pyc
+
+# Uploaded files
+uploads/*
+!uploads/.gitkeep
+
+# Generated reports
+outputs/reports/*
+!outputs/reports/.gitkeep
+
+outputs/transcripts/*
+!outputs/transcripts/.gitkeep

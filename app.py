@@ -21,35 +21,39 @@ import streamlit as st
 
 st.set_page_config(
     page_title="MeetMind AI",
-    page_icon = "🧠",
-    layout = "wide",
+    page_icon="🧠",
+    layout="wide",
+    initial_sidebar_state="expanded",
 )
 
-st.divider()
+# st.divider()
 
 #Creating Sidebar
 with st.sidebar:
-    st.image("assets/logo.png", width=80)
+
+    left, center, right = st.columns([1, 2, 1])
+
+    with center:
+        st.image("assets/logo.png", width=120)
 
     st.markdown(
-        "<h2 style='text-align:center; margin-bottom:0;'>MeetMind AI</h2>",
+        "<h1 style='text-align:center;'>MeetMind AI</h1>",
         unsafe_allow_html=True,
     )
 
-    st.markdown(
-        "<p style='text-align:center; color:gray;'>Transform Meetings into Actionable Insights</p>",
-        unsafe_allow_html=True,
+    st.caption(
+        "Transform Meetings into Actionable Insights"
     )
 
     st.divider()
-        
-    st.header("📁 Upload Meeting")
+
+    st.subheader("📂 Upload Meeting")
+
     uploaded_file = st.file_uploader(
         "Choose a meeting file",
-        type=["mp3","wav","mp4","pdf","txt"]
+        type=["mp3", "wav", "mp4", "pdf", "txt"],
     )
-    
-    #Meeting Type
+
     meeting_type = st.selectbox(
         "Meeting Type",
         [
@@ -57,68 +61,80 @@ with st.sidebar:
             "Client Meeting",
             "Interview",
             "Conference",
-            "Other"
-        ]
+            "Other",
+        ],
+    )
+
+    analyze = st.button(
+        "🚀 Analyze Meeting",
+        use_container_width=True,
     )
 
     st.divider()
-    
-    analyze = st.button(
-        "📊 Analyze Meeting",
-        use_container_width=True
-    )
 
+    st.caption("Version 1.0")
+    st.caption("Powered by Gemini")
 
 #Home Page
+# =========================
+# Hero Section
+# =========================
 
-c1, c2, c3 = st.columns([2, 1, 2])
+hero = st.container(border=True)
 
-with c2:
-    st.image("assets/logo.png", width=120)
+with hero:
 
-st.markdown(
-    "<h1 style='text-align:center;'>MeetMind AI</h1>",
-    unsafe_allow_html=True,
-)
+    col1, col2 = st.columns([1, 4])
 
-st.markdown(
-    "<h4 style='text-align:center;color:gray;'>Transform Meetings into Actionable Insights</h4>",
-    unsafe_allow_html=True,
-)
+    with col1:
+        st.image("assets/logo.png", width=250)
+
+    with col2:
+        st.title("MeetMind AI")
+
+        st.caption("AI-Powered Meeting Intelligence Platform")
+
+        st.write(
+            "Convert meeting recordings, transcripts, and documents into professional summaries, action items, and insights in seconds."
+        )
 
 st.divider()
-
 
 # #Generate Button
 # generate = st.button("🚀 Generate Summary")
 
 #Welcome Section
 if uploaded_file is None:
-    container = st.container(border=True)
 
-    with container:
-        st.markdown("## 👋 Welcome to MeetMind AI")
+    welcome = st.container(border=True)
 
-        st.write("Upload a meeting recording or transcript to automatically generate:")
+    with welcome:
 
-        st.markdown(
+        st.subheader("👋 Welcome")
+
+        st.write(
             """
-            - 📄 Executive Summary
-            - ✅ Action Items
-            - 🎯 Key Decisions
-            - ⚠️ Risks & Blockers
-            - 📌 Follow-up Tasks
+                MeetMind AI helps you automatically generate:
+
+                - 📄 Executive Summary
+                - ✅ Action Items
+                - 🎯 Key Decisions
+                - ⚠️ Risks & Blockers
+                - 📌 Follow-up Tasks
             """
         )
 
-    st.divider()
+        st.divider()
 
-    st.markdown("**Supported Formats**")
+        st.markdown("### Supported Files")
 
-    st.write("🎤 MP3 • WAV")
+        c1, c2 = st.columns(2)
 
-    st.write("📄 PDF • TXT")
-    
+        c1.success("📄 PDF\n\nTXT")
+
+        c2.success("🎤 MP3\n\nWAV")
+        
+        
 if uploaded_file:
     valid, message = validate_file(uploaded_file)
     if not valid:
