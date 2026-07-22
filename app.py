@@ -111,7 +111,7 @@ if uploaded_file:
         st.stop()
         
     st.success("✅ File Uploaded Successfully!")
-    st.caption(f"Saved to: {saved_path.name}")
+    st.caption(f"📂  Saved to: {saved_path.name}")
     
 
     col1, col2 = st.columns(2)
@@ -149,7 +149,7 @@ if st.button("🚀 Analyze"):
         st.warning("No text found to analyze.")
         st.stop()
 
-    with st.spinner("Gemini is analyzing your meeting..."):
+    with st.spinner("🤖 AI is analyzing your meeting..."):
 
         try:
 
@@ -162,26 +162,43 @@ Meeting Transcript:
 """
 
             summary = ask_gemini(prompt)
-
-            st.divider()
+            
+            st.session_state["summary"] = summary
+            
+            if "summary" in st.session_state:
+                st.divider()
 
             st.subheader("📝 AI Meeting Summary")
-
-            st.write(summary)
+            st.markdown(st.session_state["summary"])
+            # st.write(summary)
+            
+            st.download_button(
+                label = "📥 Download Summary",
+                data = st.session_state["summary"],
+                file_name = "meeting_summary.txt",
+                mime = "text/plain"
+            )
 
         except Exception as e:
 
             st.exception(e)
                 
-                
-st.subheader("📊 Meeting Insights")
+if "summary" in st.session_state:
+    st.subheader("📊 Meeting Insights")
 
-metric1, metric2, metric3, metric4 = st.columns(4)
+    transcript_words = len(document_text.split())
+    summary_words = len(st.session_state["summary"].split())
 
-metric1.metric("📄 Pages", "--")
-metric2.metric("✅ Action Items", "--")
-metric3.metric("⚠️ Risks", "--")
-metric4.metric("⏱️ Watch Duration", "--")
+    compression = (
+        (1 - summary_words /transcript_words) * 100
+        if transcript_words else 0
+    )
+    st.divider()
+    metric1, metric2, metric3 = st.columns(3)
+
+    metric1.metric("Transcript Words", transcript_words)
+    metric2.metric("Summary Words", summary_words)
+    metric3.metric("Compression",f"{compression:.1f}%")
 
 
 
