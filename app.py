@@ -163,7 +163,9 @@ if st.button("🚀 Analyze"):
                 st.divider()
 
             st.subheader("📝 AI Meeting Summary")
-            st.markdown(st.session_state["summary"])
+            
+            with st.container(border=True):
+                st.markdown(st.session_state["summary"])
             # st.write(summary)
             
             st.download_button(
