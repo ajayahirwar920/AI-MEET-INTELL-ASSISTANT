@@ -1,3 +1,9 @@
+import sys
+print("=" * 60)
+print(sys.executable)
+print("="*60)
+
+from services.ai_service import ask_gemini
 from services.file_service import validate_file, save_uploaded_file
 from services.parser_service import extract_text
 from services.speech_service import transcribe_audio
@@ -136,6 +142,38 @@ if uploaded_file:
 
 st.divider()
 
+#Testing Geminiv  
+if st.button("🚀 Analyze"):
+
+    if not document_text:
+        st.warning("No text found to analyze.")
+        st.stop()
+
+    with st.spinner("Gemini is analyzing your meeting..."):
+
+        try:
+
+            prompt = f"""
+Summarize the following meeting in simple professional language.
+
+Meeting Transcript:
+
+{document_text}
+"""
+
+            summary = ask_gemini(prompt)
+
+            st.divider()
+
+            st.subheader("📝 AI Meeting Summary")
+
+            st.write(summary)
+
+        except Exception as e:
+
+            st.exception(e)
+                
+                
 st.subheader("📊 Meeting Insights")
 
 metric1, metric2, metric3, metric4 = st.columns(4)
@@ -144,6 +182,7 @@ metric1.metric("📄 Pages", "--")
 metric2.metric("✅ Action Items", "--")
 metric3.metric("⚠️ Risks", "--")
 metric4.metric("⏱️ Watch Duration", "--")
+
 
 
 #Progress Placeholder
